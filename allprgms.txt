@@ -1,0 +1,179 @@
+﻿1) SHIPMENT SCHEMA
+
+create table customer(cust int primary key, cname varchar(30), city varchar(30));  
+create table orders(ord int primary key, odate date, ocust int, ordamt int, foreign key(ocust) references customer(cust));  
+create table item(iord int primary key, uprice int);  
+create table oitem(oiord int, oitem int, qty int, primary key(oiord,oitem), foreign key(oiord) references orders(ord), foreign key(oitem) references item(iord));  
+create table warehouse(ware int primary key, city varchar(20));  
+create table shipment(sord int, sware int, sdate date, primary key(sord,sware), foreign key(sord) references orders(ord), foreign key(sware) references warehouse(ware));  
+insert into customer values(1, 'manish', 'bangalore');  
+insert into orders values(1, '2020-08-17', 1, 2000);  
+insert into item values(22, 700);  
+insert into oitem values(1, 2, 34);  
+insert into warehouse values(2, 'bangalore');  
+insert into shipment values(1, 1, '2020-08-17');
+
+//query1  
+select sord from warehouse w,shipment s where w.ware = s.sware and city='bangalore';
+
+//query2  
+SELECT cname from customer c, orders o, oitem oi, item i WHERE c.cust = o.ocust AND o.ord = oi.oiord AND i.iord = oi.oiord AND iord <\> 10  
+  
+  
+2) Bank schema  
+
+create table branch(bname varchar(20) primary key, bcity varchar(30), asts float);  
+create table account(acno int primary key, abname varchar(20), bal float);  
+create table depositor(dcname varchar(20), dcno int, primary key(dcname, dcno), foreign key(dcname) references customer(cname), foreign key(dcno) references account(acno));  
+create table customer(cname varchar(20), custid int, cstreet varchar(20), ccity varchar(20), primary key(cname));  
+create table loan(lnum int, lbname varchar(20), amnt float, primary key(lnum,lbname), foreign key(lbname) references branch(bname));  
+create table borrower(bcname varchar(20), blnum varchar(20), primary key(bcname,blnum), foreign key(bcname) references customer(cname), foreign key(blnum) references loan(lnum));  
+insert into branch values('axisbank', 'bangalore', 20000);  
+insert into account values(23, 'cbank', 3200);  
+insert into depositor values('chattu', 33000);  
+insert into customer values('bablu', 45, 'jcnagar', 'bangalore');  
+insert into loan values(23, 'hdfc', 3000);  
+insert into borrower values('bablu', 44);  
+SELECT lnum from loan,branch WHERE bname = "axisbank" AND amnt > 100000 ;
+SELECT DISTINCT cname FROM borrower AS b, loan AS l, customer AS
+c WHERE b.bcname = c.cname AND b.blnum = l.lnum
+AND cname = "axisbank" ORDER BY cname ;
+  
+  
+  
+  
+3)
+
+create table branch(bname varchar(20) primary key, bcity varchar(30), asts float);  
+create table account(acno int primary key, abname varchar(20), bal float);  
+create table depositor(dcname varchar(20), dcno int, primary key(dcname, dcno), foreign key(dcname) references customer(cname), foreign key(dcno) references account(acno));  
+create table customer(cname varchar(20), custid int, cstreet varchar(20), ccity varchar(20), primary key(cname));  
+create table loan(lnum int, lbname varchar(20), amnt float, primary key(lnum,lbname), foreign key(lbname) references branch(bname));  
+create table borrower(bcname varchar(20), blnum varchar(20), primary key(bcname,blnum), foreign key(bcname) references customer(cname), foreign key(blnum) references loan(lnum));  
+insert into branch values('axisbank', 'bangalore', 20000);  
+insert into account values(23, 'cbank', 3200);  
+insert into depositor values('chattu', 33000);  
+insert into customer values('bablu', 45, 'jcnagar', 'bangalore');  
+insert into loan values(23, 'hdfc', 3000);  
+insert into borrower values('bablu', 44);  
+select distinct bcname from borrower where bcname in(select dcname from depositor);  
+SELECT abname, COUNT(DISTINCT dcname) FROM depositor,account WHERE depositor.acno = account.acno GROUP BY abname ;
+
+  
+4)
+
+create table branch(bname varchar(20) primary key, bcity varchar(30), asts float);  
+create table account(acno int primary key, abname varchar(20), bal float);  
+create table depositor(dcname varchar(20), dcno int, primary key(dcname, dcno), foreign key(dcname) references customer(cname), foreign key(dcno) references account(acno));  
+create table customer(cname varchar(20), custid int, cstreet varchar(20), ccity varchar(20), primary key(cname));  
+create table loan(lnum int, lbname varchar(20), amnt float, primary key(lnum,lbname), foreign key(lbname) references branch(bname));  
+create table borrower(bcname varchar(20), blnum varchar(20), primary key(bcname,blnum), foreign key(bcname) references customer(cname), foreign key(blnum) references loan(lnum));  
+insert into branch values('axisbank', 'bangalore', 20000);  
+insert into account values(23, 'cbank', 3200);  
+insert into depositor values('chattu', 33000);  
+insert into customer values('bablu', 45, 'jcnagar', 'bangalore');  
+insert into loan values(23, 'hdfc', 3000);  
+insert into borrower values('bablu', 44);  
+SELECT lnum FROM loan WHERE amnt BETWEEN 1 AND 3000;  
+SELECT abname, AVG(bal) FROM account GROUP BY abname ;  
+
+  
+  
+5)
+
+create table person(drid varchar(20) primary key, pname varchar(20), paddr varchar(20));  
+create table car(cregno varchar(20) primary key, cmodel varchar(20), year int);  
+create table accident(rnumb int primary key, acdate date, alocat varchar(20));  
+create table owns(odrid varchar(20), oregno varchar(20), primary key(odrid,oregno), foreign key(odrid) references person(drid), foreign key(oregno) references car(cregno));  
+create table participated(pdrid varchar(20), pregno varchar(20), prnum int, dmgamt int, primary key(pdrid,pregno), foreign key(pdrid) references person(drid), foreign key(pregno) references car(cregno));  
+insert into person values(23,"manish","kjroad");  
+insert into car values(2,"model1", 2014);  
+insert into accident values(52, date '20-08-14', "jaynagar");  
+insert into owns values(55, 22);  
+insert into participated values(45, 22, 75, 2000);  
+Select odrid,count(\*) as no from owns group by odrid;  
+SELECT count (distinct \*) FROM accident WHERE exists(SELECT \* FROM participated,person WHERE participated.pdrid = person.drid AND person.name= "manish" AND accident.rnumb= participated.prnum)  
+
+  
+6)
+
+create table person(drid varchar(20) primary key, pname varchar(20), paddr varchar(20));  
+create table car(cregno varchar(20) primary key, cmodel varchar(20), year int);  
+create table accident(rnumb int primary key, acdate date, alocat varchar(20));  
+create table owns(odrid varchar(20), oregno varchar(20), primary key(odrid,oregno), foreign key(odrid) references person(drid), foreign key(oregno) references car(cregno));  
+create table participated(pdrid varchar(20), pregno varchar(20), prnum int, dmgamt int, primary key(pdrid,pregno), foreign key(pdrid) references person(drid), foreign key(pregno) references car(cregno));  
+insert into person values(23,"manish","kjroad");  
+insert into car values(2,"model1", 2014);  
+insert into accident values(52, date '20-08-14', "jaynagar");  
+insert into owns values(55, 22);  
+insert into participated values(45, 22, 75, 2000);  
+Select odrid,count(\*) as no from owns group by odrid;  
+SELECT count distinct \* from accident where exists select \* from participated,person where participated.pdrid = person.drid and person.pname= "manish" and accident.rnumb = participated.prnum;  
+
+7)create table person(drid varchar(20) primary key, pname varchar(20), paddr varchar(20));  
+create table car(cregno varchar(20) primary key, cmodel varchar(20), year int);  
+create table accident(rnumb int primary key, acdate date, alocat varchar(20));  
+create table owns(odrid varchar(20), oregno varchar(20), primary key(odrid,oregno), foreign key(odrid) references person(drid), foreign key(oregno) references car(cregno));  
+create table participated(pdrid varchar(20), pregno varchar(20), prnum int, dmgamt int, primary key(pdrid,pregno), foreign key(pdrid) references person(drid), foreign key(pregno) references car(cregno));  
+insert into person values(23,"manish","kjroad");  
+insert into car values(2,"model1", 2014);  
+insert into accident values(52, date '20-08-14', "jaynagar");  
+insert into owns values(55, 22);  
+insert into participated values(45, 22, 75, 2000);  
+Select distinct (pregno) from participated;  
+Select pregno,cmodel from car,participated where pregno=cregno and dmgamt in (select max(dmgamt) from participated);  
+
+8)
+
+create table branch(bname varchar(20) primary key, bcity varchar(30), asts float);  
+create table account(acno int primary key, abname varchar(20), bal float);  
+create table depositor(dcname varchar(20), dcno int, primary key(dcname, dcno), foreign key(dcname) references customer(cname), foreign key(dcno) references account(acno));  
+create table customer(cname varchar(20), custid int, cstreet varchar(20), ccity varchar(20), primary key(cname));  
+create table loan(lnum int, lbname varchar(20), amnt float, primary key(lnum,lbname), foreign key(lbname) references branch(bname));  
+create table borrower(bcname varchar(20), blnum varchar(20), primary key(bcname,blnum), foreign key(bcname) references customer(cname), foreign key(blnum) references loan(lnum));  
+insert into branch values('axisbank', 'bangalore', 20000);  
+insert into account values(23, 'cbank', 3200);  
+insert into depositor values('chattu', 33000);  
+insert into customer values('bablu', 45, 'jcnagar', 'bangalore');  
+insert into loan values(23, 'hdfc', 3000);  
+insert into borrower values('bablu', 44);  
+select abname, AVG(bal) from account group by abname having avg(bal) \> 100000 ;  
+SELECT distinct borrower.bcname,cname from borrower,customer where borrower.bcname = customer.cname AND borrower.bcname not in (SELECT dcname FROM depositor) ;  
+
+  
+9)
+
+create table branch(bname varchar(20) primary key, bcity varchar(30), asts float);  
+create table account(acno int primary key, abname varchar(20), bal float);  
+create table depositor(dcname varchar(20), dcno int, primary key(dcname, dcno), foreign key(dcname) references customer(cname), foreign key(dcno) references account(acno));  
+create table customer(cname varchar(20), custid int, cstreet varchar(20), ccity varchar(20), primary key(cname));  
+create table loan(lnum int, lbname varchar(20), amnt float, primary key(lnum,lbname), foreign key(lbname) references branch(bname));  
+create table borrower(bcname varchar(20), blnum varchar(20), primary key(bcname,blnum), foreign key(bcname) references customer(cname), foreign key(blnum) references loan(lnum));  
+insert into branch values('axisbank', 'bangalore', 20000);  
+insert into account values(23, 'cbank', 3200);  
+insert into depositor values('chattu', 33000);  
+insert into customer values('bablu', 45, 'jcnagar', 'bangalore');  
+insert into loan values(23, 'hdfc', 3000);  
+insert into borrower values('bablu', 44);  
+(select DISTINCT dcname FROM depositor) INTERSECT (select  
+DISTINCT bcname FROM borrower) ;
+
+SELECT abname, COUNT(DISTINCT dcname) FROM depositor, account  
+WHERE depositor.dcno = account.acno GROUP BY abname ;  
+
+10)
+
+create table customer(cust int primary key, cname varchar(30), city varchar(30));  
+create table orders(ord int primary key, odate date, ocust int, ordamt int, foreign key(ocust) references customer(cust));  
+create table item(iord int primary key, uprice int);  
+create table oitem(oiord int, oitem int, qty int, primary key(oiord,oitem), foreign key(oiord) references orders(ord), foreign key(oitem) references item(iord));  
+create table warehouse(ware int primary key, city varchar(20));  
+create table shipment(sord int, sware int, sdate date, primary key(sord,sware), foreign key(sord) references orders(ord), foreign key(sware) references warehouse(ware));  
+insert into customer values(1, 'manish', 'bangalore');  
+insert into orders values(1, '2020-08-17', 1, 2000);  
+insert into item values(22, 700);  
+insert into oitem values(1, 2, 34);  
+insert into warehouse values(2, 'bangalore');  
+insert into shipment values(1, 1, '2020-08-17');  
+select sord from warehouse w,shipment s where w.ware = s.sware and city='bangalore';  
+SELECT cname from customer c, orders o, oitem oi, item i WHERE c.cust = o.ocust AND o.ord = oi.oiord AND i.iord = oi.oiord AND iord <\> 10
